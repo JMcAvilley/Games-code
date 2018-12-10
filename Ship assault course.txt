@@ -1,0 +1,357 @@
+﻿#Press space to boost upwards, use gravity around planets to slingshot the ship
+#Visit each planet in order, if you visit a planet out of order you instantly lose the game
+#The white rings around planets indicate how close you have to be to visit
+#You lose a life and begin from the start if you crash into a planet or go off the screen
+#Planets on the outer edges of the course have stronger gravity, use them to change direction
+#Timing is key
+import simplegui
+import math
+
+
+width = 900
+height = 900
+
+
+time = 5
+fx = 0
+fy =0
+dx = 0
+dy = 0
+d = 0
+vx = 0
+vy = 0
+timespent = 0
+collision = 0
+lives = 3
+score = 100
+t = 1000 # to register timer tick event
+visits = 0
+#radii to detect a "visit"
+planets = [80, 80, 80, 80, 80, 80, 80, 80, 80, 80]
+start_pos = [50,850]
+
+
+def tick():
+    global timespent, score
+    timespent = timespent + 1
+    score = score -1 
+
+
+class spacecraft:
+    
+    def __init__(self,centre, lwidth, lcolour, fillcolour, vel, acc, mass):
+        self.centre = centre
+        self.lwidth = lwidth
+        self.lcolour = lcolour
+        self.fillcolour = fillcolour
+        self.vel = vel
+        self.acc = acc
+        self.mass = mass
+    
+    def move(self):
+        global lives, visits, planets
+        self.centre[0] = self.centre[0] + self.vel[0]
+        self.centre[1] = self.centre[1] + self.vel[1]
+        
+        #  Code to ensure spacecraft doesn’t go beyond the edges of the canvas
+        if self.centre[0] <= 0:
+            self.centre[0] = 50
+            self.centre[1] = 850
+            lives = lives - 1
+            self.vel[0] = 0
+            self.vel[1] = 0
+            visits = 0
+            planets = [80, 80, 80, 80, 80, 80, 80, 80, 80, 80]
+            
+        elif self.centre[0] > width:
+            self.centre[0] = 50
+            self.centre[1] = 850
+            lives = lives - 1
+            self.vel[0] = 0
+            self.vel[1] = 0
+            visits = 0
+            planets = [80, 80, 80, 80, 80, 80, 80, 80, 80, 80]
+            
+        elif s1.centre[1] <= 0:
+            self.centre[0] = 50
+            self.centre[1] = 850
+            lives = lives - 1
+            self.vel[0] = 0
+            self.vel[1] = 0
+            visits = 0
+            planets = [80, 80, 80, 80, 80, 80, 80, 80, 80, 80]
+            
+        elif self.centre[1] > height:
+            self.centre[0] = 50
+            self.centre[1] = 850
+            lives = lives - 1
+            self.vel[0] = 0
+            self.vel[1] = 0
+            visits = 0
+            planets = [80, 80, 80, 80, 80, 80, 80, 80, 80, 80]
+            
+    def drawSpacecraft(self, canvas):
+        canvas.draw_polygon([(self.centre[0] + 10, self.centre[1]), (self.centre[0] - 10, self.centre[1] -10), (self.centre[0] -10, self.centre[1] +10)], self.lwidth, self.lcolour, self.fillcolour)
+                                                                                                                
+    def gravity(self, obstacle):
+        global dx, dy, d, F, fx, fy, theta, ax, ay, vx, vy, time, collision, lives, score, mass, visits, planets, start_pos
+    
+        dx = (obstacle.centre[0] - self.centre[0])
+        dy = (obstacle.centre[1] - self.centre[1])
+
+
+        # Calculate the distance between the spacecraft and the obstacle  - d
+        d  =  math.sqrt((dx**2)+(dy**2))
+
+
+        # Calculate the gravitational force  - F
+        F  =  (self.mass*obstacle.mass)/d**2
+
+
+        #Compute the direction of the force 
+        theta = math.atan2(dy,dx) 
+
+
+        # Calculate x and y components of the force
+        fx =  math.cos(theta)*F
+        fy =  math.sin(theta)*F     
+        
+        # Calculate acceleration in x and y directions
+        ax = fx/self.mass  
+        ay = fy/self.mass
+             
+        # updating velocity components using acceleration
+
+
+        self.vel[0] = self.vel[0] + (ax *time)            
+        self.vel[1] = self.vel[1] + (ay *time)
+         
+        # Collision detection -
+        if d<= (10 + obstacle.radius):
+            # reduce lives by 1
+            lives = lives - 1
+            # reduce score by 10
+            score = score - 10
+            # reset the spacecraft to the initial position
+            self.centre = [50, 850]
+            self.vel[0] = 0
+            self.vel[1] = 0
+            visits = 0
+            planets = [80, 80, 80, 80, 80, 80, 80, 80, 80, 80] #Gives the planets a radius to be visited again
+          
+    def keydown(self, key): 
+        global vel, acc, planets, timespent, score, lives, visits
+        if key == simplegui.KEY_MAP['space']:
+            self.vel[1] = self.vel[1] - self.acc
+            
+        if key == simplegui.KEY_MAP['r']: #Key for the player to easily reset the game
+            score = 100
+            timespent = 0
+            lives = 3
+            visits = 0
+            self.vel[0] = 0
+            self.vel[1] = 0
+            self.centre[0] = 50
+            self.centre[1] = 850
+            planets = [80, 80, 80, 80, 80, 80, 80, 80, 80, 80]
+            t.start()
+            
+    def keyup(self, key): 
+        global vel
+        if key == simplegui.KEY_MAP['space']:
+              self.vel[1] = self.vel[1]
+                
+class obstacle:
+    def __init__(self, centre,radius, lwidth, lcolour,fillcolour, mass, SNo):
+        self.centre = centre
+        self.radius = radius
+        self.lwidth = lwidth
+        self.lcolour = lcolour
+        self.fillcolour = fillcolour
+        self.mass = mass
+        self.SNo = SNo       
+   
+    def drawobstacle(self, canvas):
+        canvas.draw_circle([self.centre[0], self.centre[1]], self.radius + 60,self.lwidth,"White","Black") #Creates a ring around each obstacle
+        canvas.draw_circle([self.centre[0], self.centre[1]], self.radius,self.lwidth,self.lcolour,self.fillcolour)
+        canvas.draw_text(str(self.SNo), [self.centre[0]-5, self.centre[1]+5], 20, "White")
+        
+s1 = spacecraft(start_pos , 2,'black','Red', [0,0], 0.5, 25) #centre, lwidth, lcolour, fillcolour, vel, acc, mass
+
+
+#Code to add obstacles
+obslist = []
+o1 = obstacle ([200, 800], 20, 5, 'Brown', ' Brown', 10, 1)
+obslist.append(o1)
+
+
+o2 = obstacle ([500, 800], 20, 5, 'Blue', ' Blue', 15, 2)
+obslist.append(o2)
+
+
+o3 = obstacle ([730, 630], 20, 5, 'Aqua', ' Aqua', 45, 3)
+obslist.append(o3)
+
+
+o4 = obstacle ([690, 550], 20, 5, 'Green', ' Green', 35, 4)
+obslist.append(o4)
+
+
+o5 = obstacle ([600, 450], 20, 5, 'Red', ' Red', 30, 5)
+obslist.append(o5)
+
+
+o6 = obstacle ([450, 400], 20, 5, 'Teal', ' Teal', 30, 6)
+obslist.append(o6)
+
+
+o7 = obstacle ([200, 250], 20, 5, 'Purple', ' Purple', 35, 7)
+obslist.append(o7)
+
+
+o8 = obstacle ([400, 200], 20, 5, 'Orange', ' Orange', 10, 8)
+obslist.append(o8)
+
+
+o9 = obstacle ([500, 200], 20, 5, 'Lime', ' Lime', 10, 9)
+obslist.append(o9)
+
+
+o10 = obstacle ([700, 200], 20, 5, 'Fuchsia', ' Fuchsia', 10, 10)
+obslist.append(o10)
+        
+def draw(canvas):
+    global s1, obslist, timespent, centre, obstacle, visits, score, lives, planets, radiuscolour
+    goal_centre = [830, 150] #Coordinates for the goals display
+    goal_text = [800, 160]
+    canvas.draw_text("Visits: "+str(visits), [20,30], 20, "Red")
+    
+    if lives <= 0 or score <= 0: #Game ends when the player has run out of lives or score
+        canvas.draw_text("Game over!", [width/2,height/2], 50, "Red")
+        canvas.draw_text("Press \'R\' to restart", [475,475], 25, "Red")
+        score = 0
+        t.stop()
+    
+    #Code to check if the player has gotten to the end and visited all planets in order
+    elif s1.centre[0] < goal_centre[0] + 50 and s1.centre[0] > goal_centre[0] - 50 and s1.centre[1] < goal_centre[1] + 50 and s1.centre[1] > goal_centre[1] - 50 and visits == 10:
+        canvas.draw_text("You Win!", [width/2,height/2], 50, "White")
+        canvas.draw_text("But can you beat your score?", [width/2 - 20,height/2+ 30], 20, "White")
+        t.stop()
+    
+    #Game ends if not all planets are visited
+    elif s1.centre[0] > width-50 and s1.centre[0] < width and s1.centre[1] > height-50 and s1.centre[1] < height and visits != 10:
+        canvas.draw_text("Game over!", [width/2,height/2], 50, "Red")
+        canvas.draw_text("Press /'R/' to restart", [200,400], 25, "Red")
+        t.stop()
+    
+    else:
+        for item in obslist:
+            item.drawobstacle(canvas)
+            s1.gravity(item)
+        s1.drawSpacecraft(canvas)
+        canvas.draw_circle(goal_centre, 50, 5, "White")
+        canvas.draw_text("Goal", goal_text, 30, "White")
+        s1.move()
+  
+ #Checks if planets have been visited in order
+    if s1.centre[0] <= o1.centre[0] + planets[0] and s1.centre[1] <= o1.centre[1] + planets[0] and s1.centre[0] >= o1.centre[0] - planets[0] and s1.centre[1] >= o1.centre[1] - planets[0]:
+        planets[0] = 0
+        visits = visits + 1
+        if visits != 1:
+            visits = 0
+            lives = 0
+            t.stop()
+
+
+    elif s1.centre[0] <= o2.centre[0] + planets[1] and s1.centre[1] <= o2.centre[1] + planets[1] and s1.centre[0] >= o2.centre[0] - planets[1] and s1.centre[1] >= o2.centre[1] - planets[1]:
+        planets[1] = 0
+        visits = visits + 1
+        if visits != 2:
+            visits = 0
+            lives = 0
+            t.stop()
+
+
+    elif s1.centre[0] <= o3.centre[0] + planets[2] and s1.centre[1] <= o3.centre[1] + planets[2] and s1.centre[0] >= o3.centre[0] - planets[2] and s1.centre[1] >= o3.centre[1] - planets[2]:
+        planets[2] = 0
+        visits = visits + 1
+        if visits != 3:
+            visits = 0
+            lives = 0
+            t.stop()
+
+
+    elif s1.centre[0] <= o4.centre[0] + planets[3] and s1.centre[1] <= o4.centre[1] + planets[3] and s1.centre[0] >= o4.centre[0] - planets[3] and s1.centre[1] >= o4.centre[1] - planets[3]:
+        planets[3] = 0
+        visits = visits + 1
+        if visits != 4:
+            visits = 0
+            lives = 0
+            t.stop()
+        
+    elif s1.centre[0] <= o5.centre[0] + planets[4] and s1.centre[1] <= o5.centre[1] + planets[4] and s1.centre[0] >= o5.centre[0] - planets[4] and s1.centre[1] >= o5.centre[1] - planets[4]:
+        planets[4] = 0
+        visits = visits + 1
+        if visits != 5:
+            visits = 0
+            lives = 0
+            t.stop()
+       
+    elif s1.centre[0] <= o6.centre[0] + planets[5] and s1.centre[1] <= o6.centre[1] + planets[5] and s1.centre[0] >= o6.centre[0] - planets[5] and s1.centre[1] >= o6.centre[1] - planets[5]:
+        planets[5] = 0
+        visits = visits + 1
+        if visits != 6:
+            visits = 0
+            lives = 0
+            t.stop()
+        
+    elif s1.centre[0] <= o7.centre[0] + planets[6] and s1.centre[1] <= o7.centre[1] + planets[6] and s1.centre[0] >= o7.centre[0] - planets[6] and s1.centre[1] >= o7.centre[1] - planets[6]:
+        planets[6] = 0
+        visits = visits + 1
+        if visits != 7:
+            visits = 0
+            lives = 0
+            t.stop()
+            
+    elif s1.centre[0] <= o8.centre[0] + planets[7] and s1.centre[1] <= o8.centre[1] + planets[7] and s1.centre[0] >= o8.centre[0] - planets[7] and s1.centre[1] >= o8.centre[1] - planets[7]:
+        planets[7] = 0
+        visits = visits + 1
+        if visits != 8:
+            visits = 0
+            lives = 0
+            t.stop()
+        
+    elif s1.centre[0] <= o9.centre[0] + planets[8] and s1.centre[1] <= o9.centre[1] + planets[8] and s1.centre[0] >= o9.centre[0] - planets[8] and s1.centre[1] >= o9.centre[1] - planets[8]:
+        planets[8] = 0
+        visits = visits + 1
+        if visits != 9:
+            visits = 0
+            lives = 0
+            t.stop()
+            
+    elif s1.centre[0] <= o10.centre[0] + planets[9] and s1.centre[1] <= o10.centre[1] + planets[9] and s1.centre[0] >= o10.centre[0] - planets[9] and s1.centre[1] >= o10.centre[1] - planets[9]:
+        planets[9] = 0
+        visits = visits + 1
+        if visits != 10:
+            visits = 0
+            lives = 0
+            t.stop()
+            
+    canvas.draw_text ("Time Elapsed since the start:" + str(timespent), [150, 30], 20, "White","monospace")
+
+
+    # Code to display lives on the canvas
+    canvas.draw_text("Lives:" +str(lives), [150, 50], 20, "White","monospace")
+
+
+    # Code to display score on the canvas
+    canvas.draw_text("Score:" +str(score), [150, 70], 20, "White","monospace")
+
+
+f = simplegui.create_frame("Test", width, height)
+t = simplegui.create_timer(t, tick)
+f.set_keydown_handler(s1.keydown)
+f.set_keyup_handler(s1.keyup)
+f.set_draw_handler(draw)
+f.start()
+t.start()

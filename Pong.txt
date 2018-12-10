@@ -1,0 +1,140 @@
+﻿#Pong
+#Up and down arrows control the right paddle
+#W and S control the left paddle
+#Press R to reset the ball and paddles
+#imports
+import simplegui
+import math
+import random
+#Variables
+height = 500
+width = 800
+acc = 7
+acc1 = 3
+vel = [0, 0]
+vel1 = [0, 0]
+x = random.choice([-5,-4,-3,3,4,5])
+y = random.choice([-5,-4,-3,3,4,5])
+velocity = [x,y]
+ball_centre = [width/2,height/2]
+radius = 4
+line_width = 5
+line_colour = "White"
+fill_colour = "White"
+
+
+score1 = 0
+score2 = 0
+
+
+point1 = [50, 200]
+point2 = [50, 300]
+point3 = [750, 200]
+point4 = [750, 300]
+
+
+def draw(canvas):
+    global ball_centre, radius, point1, point2, point3, point4, vel, vel1, velocity, width, height, score1, score2
+    canvas.draw_circle(ball_centre, radius, line_width, line_colour, fill_colour)
+    canvas.draw_polygon([point1,point2], 12, 'White', "White")
+    canvas.draw_polygon([point3,point4], 12, 'White', "White")
+    score1 = str(score1)
+    score2 = str(score2)
+    canvas.draw_text(score1, [150, 50], 30, "White")
+    canvas.draw_text(score2, [650, 50], 30, "White")
+    
+    point1[1] = point1[1] + vel[1]
+    point2[1] = point2[1] + vel[1]
+    point3[1] = point3[1] + vel1[1]
+    point4[1] = point4[1] + vel1[1]
+   
+    ball_centre[0] = ball_centre[0] + velocity[0]
+    ball_centre[1] = ball_centre[1] + velocity[1]
+        
+    if ball_centre[1] <= radius: #bounce off top wall
+        velocity[1] = -velocity[1]
+        
+    elif ball_centre[1] + radius >= height: #bounce off bottom wall
+        velocity[1] = -velocity[1]
+        
+    elif ball_centre[0] > 745 and ball_centre[0] < 755 and ball_centre[1] + radius <= point4[1] and ball_centre[1] + radius >= point3[1]:
+        velocity[0] = -velocity[0]
+        
+    elif ball_centre[0] < 55 and ball_centre[0] >45 and ball_centre[1] + radius <= point2[1] and ball_centre[1] + radius >= point1[1]:
+        velocity[0] = -velocity[0]
+        
+    if ball_centre[0] == width or ball_centre[0] == width + 1 or ball_centre[0] == width + 2:
+        score1 = int(score1)
+        score1 = score1 + 1
+        score1 = str(score1)
+        score1 = int(score1)
+        
+    elif ball_centre[0] == 0 or ball_centre[0] == 0 - 1 or ball_centre[0] == 0 - 2:
+        score2 = int(score2)
+        score2 = score2 + 1
+        score2 = str(score2)
+        score2 = int(score2)
+        
+    if point1[1] <= 0:
+        point1[1] = point1[1] + 7
+        point2[1] = point2[1] + 7
+        
+    elif point2[1] >= height:
+        point1[1] = point1[1] - 7
+        point2[1] = point2[1] - 7
+        
+    if point3[1] <= 0:
+        point3[1] = point3[1] + 7
+        point4[1] = point4[1] + 7
+        
+    elif point4[1] >= height:
+        point3[1] = point3[1] - 7
+        point4[1] = point4[1] - 7
+        
+def reset():
+    global ball_centre, width, height, point1, point2, point3, point4, score1, score2
+    ball_centre = [width/2, height/2]
+    point1 = [50, 200]
+    point2 = [50, 300]
+    point3 = [750, 200]
+    point4 = [750, 300]
+    score1 = 0
+    score2 = 0
+    
+def key_down(key):
+    global vel, vel1, acc
+    if key == simplegui.KEY_MAP['w']:
+        vel[1] = vel[1] - acc
+       
+    elif key == simplegui.KEY_MAP['s']:
+        vel[1] = vel[1] + acc
+        
+    elif key == simplegui.KEY_MAP['up']:
+        vel1[1] = vel1[1] - acc
+        
+    elif key == simplegui.KEY_MAP['down']:
+        vel1[1] = vel1[1] + acc
+        
+    if key == simplegui.KEY_MAP['r']:
+        reset()
+        
+def key_up(key):
+    global vel, acc
+    if key == simplegui.KEY_MAP['w']:
+        vel[1] = 0
+        
+    elif key == simplegui.KEY_MAP['s']:
+        vel[1] = 0
+        
+    elif key == simplegui.KEY_MAP['up']:
+        vel1[1] = 0
+        
+    elif key == simplegui.KEY_MAP['down']:
+        vel1[1] = 0
+     
+frame = simplegui.create_frame("Pong", width, height)
+frame.set_draw_handler(draw)
+frame.add_button("New Game", reset, 50)
+frame.set_keydown_handler(key_down)
+frame.set_keyup_handler(key_up)
+frame.start()
