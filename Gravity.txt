@@ -1,0 +1,150 @@
+﻿import simplegui
+import math
+import random
+
+
+width = 1100
+height = 950
+
+
+centre = [width/2,height/2]
+radius = 35
+lwidth = 5
+lcolour = "Yellow"
+fcolour = "White"
+
+
+centre1 = [100, 100]
+radius1 = 10
+centre2 = centre
+radius2 = 300
+
+
+vx = 0
+vy = 0
+ticks = 10
+
+
+nudge = 1
+
+
+vel = [vx,vy]
+
+
+acc = 1
+mass1 = 150.0
+mass2 = 10.0
+def draw(canvas):
+    global centre, centre1, radius, lwidth, lcolour, fcolour, vel, radius1, point_1, point_2, point_3, ticks, vx, vy, nudge
+    canvas.draw_circle(centre2, radius2, lwidth, "White")
+    canvas.draw_circle(centre, radius, lwidth, "Blue", fcolour)
+    canvas.draw_circle(centre1, radius1, lwidth, "Red", fcolour)
+    
+    if nudge == 1:
+        vx = vx + 0.5
+        nudge = nudge - 1
+        
+    else:
+        vx = vx
+    
+    if centre1[0] >= centre[0] + radius and centre1[0] <= centre[0] - radius:
+        centre1[0] = 100
+        centre1[1] = 100
+        vx = 0
+        vy = 0
+        
+    elif centre1[1] >= centre[1] + radius and centre1[1] <= centre[1] - radius:
+        centre1[0] = 100
+        centre1[1] = 100
+        vx = 0
+        vy = 0
+        
+    if centre1[0] <0:
+        centre1[0] = centre1[0] + 50
+        
+    if centre1[0] >width:
+        centre1[0] = centre1[0] - 50
+        
+    if centre1[1] < 0:
+        centre1[1] = centre1[1] + 50
+        
+    if centre1[1] >height:
+        centre1[1] = centre1[1] - 50
+    
+    ticks = str(ticks)
+    canvas.draw_text(ticks,[width - 50, 50], 30, "White")
+    ticks = int(ticks)
+    
+    centre1[0] = centre1[0] + vel[0]
+    centre1[1] = centre1[1] + vel[1]
+    
+    dx = centre[0] - centre1[0]
+    dy = centre[1] - centre1[1]
+    
+    d = math.sqrt((dx**2)+(dy**2))
+    f = (mass1*mass2)/d**2
+    theta = math.atan2(dy, dx)
+    
+    fx = math.cos(theta)*f
+    fy = math.sin(theta)*f
+    
+    ax = fx/mass2
+    ay = fy/mass2
+    
+    vx = vx + (ax*ticks)
+    vy = vy + (ay*ticks)
+    
+    centre1[0] = centre1[0] + vx
+    centre1[1] = centre1[1] + vy
+       
+        
+def timer():
+    global ticks
+    ticks = ticks + 1
+   
+def key_down(key):
+    global vel, acc, ticks, vx, vy
+    if key == simplegui.KEY_MAP['left']:
+        vx = vx - acc
+        
+    elif key == simplegui.KEY_MAP['right']:
+        vx = vx + acc
+        
+    elif key == simplegui.KEY_MAP['up']:
+        vy = vy - acc
+        
+    elif key == simplegui.KEY_MAP['down']:
+        vy = vy + acc
+        
+    elif key == simplegui.KEY_MAP['p']:
+        vx = 0
+        vy = 0
+        
+    elif key == simplegui.KEY_MAP['r']:
+        centre1[0] = 100
+        centre1[1] = 100
+        vx = 0
+        vy = 0
+
+
+def key_up(key):
+    global vel, acc, ticks
+    if key == simplegui.KEY_MAP['left']:
+        vx = 0
+        
+    elif key == simplegui.KEY_MAP['right']:
+        vx = 0
+        
+    elif key == simplegui.KEY_MAP['up']:
+        vy = 0
+        
+    elif key == simplegui.KEY_MAP['down']:
+        vy = 0
+
+
+frame = simplegui.create_frame("Gravity", width, height)
+simplegui.create_timer(250, timer)
+frame.set_draw_handler(draw)
+frame.set_keydown_handler(key_down)
+frame.set_keyup_handler(key_up)
+frame.start()
