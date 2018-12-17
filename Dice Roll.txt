@@ -1,0 +1,64 @@
+﻿import random
+import simplegui
+
+
+roll = random.randint(1,6)
+
+
+width = 300
+height = 300
+
+
+radius = 13
+line_width = 12
+line_colour = "Black"
+fill_colour = "Black"
+
+
+def reroll():
+    global roll
+    roll = random.randint(1,6)
+    
+def draw(canvas):
+    global roll, radius, line_width, line_colour, fill_colour
+    canvas.draw_polygon(([50,50],[50,250], [250, 250], [250, 50]),12, "White", "White")
+    
+    
+    if roll == 1:
+        canvas.draw_circle([150, 150], radius, line_width, line_colour, fill_colour)
+        
+    elif roll == 2:
+        canvas.draw_circle([75, 75], radius, line_width, line_colour, fill_colour)
+        canvas.draw_circle([225, 225], radius, line_width, line_colour, fill_colour)
+        
+    elif roll == 3:
+        canvas.draw_circle([75, 75], radius, line_width, line_colour, fill_colour)
+        canvas.draw_circle([150, 150], radius, line_width, line_colour, fill_colour)
+        canvas.draw_circle([225, 225], radius, line_width, line_colour, fill_colour)
+        
+    elif roll == 4:
+        canvas.draw_circle([75, 75], radius, line_width, line_colour, fill_colour)
+        canvas.draw_circle([75, 225], radius, line_width, line_colour, fill_colour)
+        canvas.draw_circle([225, 75], radius, line_width, line_colour, fill_colour)
+        canvas.draw_circle([225, 225], radius, line_width, line_colour, fill_colour)
+        
+    elif roll == 5:
+        canvas.draw_circle([75, 75], radius, line_width, line_colour, fill_colour)
+        canvas.draw_circle([75, 225], radius, line_width, line_colour, fill_colour)
+        canvas.draw_circle([225, 75], radius, line_width, line_colour, fill_colour)
+        canvas.draw_circle([225, 225], radius, line_width, line_colour, fill_colour)
+        canvas.draw_circle([150, 150], radius, line_width, line_colour, fill_colour)
+        
+    elif roll == 6:
+        canvas.draw_circle([75, 75], radius, line_width, line_colour, fill_colour)
+        canvas.draw_circle([75, 225], radius, line_width, line_colour, fill_colour)
+        canvas.draw_circle([75, 150], radius, line_width, line_colour, fill_colour)
+        canvas.draw_circle([225, 75], radius, line_width, line_colour, fill_colour)
+        canvas.draw_circle([225, 225], radius, line_width, line_colour, fill_colour)
+        canvas.draw_circle([225, 150], radius, line_width, line_colour, fill_colour)
+
+
+frame = simplegui.create_frame("Dice Roll", width, height)
+frame.add_button("Reroll", reroll, 50)
+frame.set_draw_handler(draw)
+frame.start()

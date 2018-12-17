@@ -1,0 +1,43 @@
+﻿import simplegui
+
+
+height = 300
+width = 300
+
+
+min = 1
+max = 1001
+guess = 500
+
+
+message = ""
+
+
+def draw(canvas):
+    global min, max, guess, message
+    canvas.draw_text('Pick a number between 1 and 1000', (20, 20), 15, 'White')
+    canvas.draw_text('Is it higher or lower than', (20, 35), 15, 'White')
+    canvas.draw_text(str(guess), (175, 35), 15, 'White')
+    canvas.draw_text('?', (200, 35), 15, 'White')
+    canvas.draw_text(message, (20, 100), 20, 'White')
+    
+def higher():
+    global min, max, guess
+    min = int(guess)
+    guess = (max + min)/2
+    
+def lower():
+    global min, max, guess
+    max = int(guess)
+    guess = (max + min)/2
+    
+def correct():
+    global message
+    message = "I am a genius!"
+    
+frame = simplegui.create_frame("Number Wizard", width, height)
+frame.set_draw_handler(draw)
+frame.add_button("Higher", higher, 60)
+frame.add_button("Lower", lower, 60)
+frame.add_button("Correct!", correct, 60)
+frame.start()
